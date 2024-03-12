@@ -29,5 +29,5 @@ for (rhotype in rho)
       intern_rho_is_valid = lapply(intern_rho,intern )
       result=rbind(result,as.vector(intern_rho_is_valid))
       }
-    write.table(result,file=paste(rhotype,"intern_rho_test","csv",sep='.'),row.names=FALSE)
+    write.table(result,file=paste(rhotype,"intern_rho_test","csv",sep='.'),row.names=FALSE,sep = ",")
     }

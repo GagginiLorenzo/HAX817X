@@ -53,6 +53,6 @@ for (rho_index in 1:length(rho))
       result=rbind(result,as.vector(extern_rho_is_valid))
     }
     result<-result[,c(10,1,2,3,4,5,6,7,8,9)] #b1 au début + joli
-    write.table(result,file=paste(rhotype,"extern_rho_test","csv",sep='.'),row.names=FALSE)
+    write.table(result,file=paste(rhotype,"extern_rho_test","csv",sep='.'),row.names=FALSE,sep = ",")
   }
 
