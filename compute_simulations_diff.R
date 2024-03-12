@@ -135,7 +135,7 @@ compute_method <- function(method,
     #####
     #AJOUT ICI POUR ECRIRE LES DONNES SIMULER, 
     #seed parcour: 1:100 pour chaque rho dans rho_group, faire 1 rho a la fois pour ne pas écraser
-    write.table(sim_data,file=paste(as.character(seed),"csv",sep='.'), append = TRUE, row.names=FALSE)
+    write.table(sim_data,file=paste(as.character(seed),"csv",sep='.'),sep=",", row.names=FALSE)
     #####
     
     # Prepare the list of grouped labels
