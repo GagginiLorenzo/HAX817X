@@ -38,6 +38,7 @@ if (!DEBUG) {
 #### MODIFICATION DE LA LISTE POUR FAIRE TOURNER + VITE
 methods <- c(
   "marginal"
+
 )
 
 ##### Configuration #####
@@ -122,7 +123,7 @@ if (!DEBUG) {
 
 compute_method <- function(method,
                            index_i,
-                           n_simulations, ...)
+                           n_simulations, ...) 
   {
   print("Begin")
   cat(sprintf("%s: %i \n", method, index_i))
@@ -130,13 +131,13 @@ compute_method <- function(method,
     {
     sim_data <- generate_data(seed,...)
     print("Done loading data!")
-
+    
     #####
-    #AJOUT ICI POUR ECRIRE LES DONNES SIMULER,
+    #AJOUT ICI POUR ECRIRE LES DONNES SIMULER, 
     #seed parcour: 1:100 pour chaque rho dans rho_group, faire 1 rho a la fois pour ne pas écraser
     write.table(sim_data,file=paste(as.character(seed),"csv",sep='.'),sep=",", row.names=FALSE)
     #####
-
+    
     # Prepare the list of grouped labels
     if (list(...)$group_bool) {
       list_grps <- generate_grps(list(...)$p, list(...)$n_blocks)
