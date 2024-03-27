@@ -1,0 +1,175 @@
+A faire du 13/02 au 28/02
+
+- Setup l'environement ;
+- recupéré les données synthétiques ;
+- coder la methode marginale et tester sur les donée ;
+
+
+### Fait du 13 au 18
+
+- Explorer la structure algo du repo, quelques points clef resortis :
+
+    * Le coeur des calcules pour la parti simulation est fait en R, soit directement avec des packages R, soit par l'emplois de methode en python utiliser via la librairie reticulate.
+    
+    * L'environement python est construit via un yaml, pensez pour ètre fournis a conda/mamba forge
+    
+    * L'indication fournis pour l'import des librairies R contien une typo importante : install.packages(installedpackages[count]) est une erreur, le nom de la liste est en fait installed_packages
+    
+    * Les données généré pour la simulation ne sont directement pas fournis, il faut reffaire tourner la simmulation pour y accédé.
+
+
+### Fait du 18 au 24 
+* Setup un environement propre :
+     - Ne souhaitant pas installé conda sur ma machine, je run un Docker ubuntu avec conda deja setup: https://hub.docker.com/r/condaforge/mambaforge
+     - une fois le docker en place, j'y installe les utilitaire necessaire et je clone le repo :
+        * apt update
+        * apt upgrade
+        * apt install fish #plus pratique que bash
+        * fish
+        * mamba init fish
+        * apt install software-properties-common
+        * add-apt-repository ppa:maveonair/helix-editor
+        * sudo apt update
+        * sudo apt install helix # mon editeur de code
+        * apt install r-base-dev
+        * git clone {https://github.com/achamma723/Group_Variable_Importance} && cd
+        * mamba env create -f requirements_conda.ym
+    - Une première difficulter technique significative se présente : le yaml est structuré de façon un peut spécifique, en imposant que certain paquet soit exclusivement installer via pip.
+    -  Je ne sais pas s'il sagit d'une erreur de configuration, ou une mauvaise manipulation de ma part, mais cette particularité casse l'installation puisque certain de ces paquets ne sont plus a jour sur pip, il faudrait les installer directement via les chanel conda, mais n'ayant pas trouver de bonne syntax yaml pour ce cas spécifique, j'ai fait un script d'installation :
+
+```
+"""
+from sys import stdin
+from os import system
+from yaml import load, CLoader
+
+
+def get_dependencies(file_in: str) -> list[str]:
+    data = load(file_in, CLoader)
+    dependencies = data['dependencies']
+    pip_dependencies = [each for each in dependencies if 'pip' in each][1]['pip']
+    return pip_dependencies
+
+def install_package(pakagename: str) -> None:
+    cmd = f'mamba install {pakagename}'
+    print(cmd)
+    system(cmd)
+
+def main() -> None:
+    file_in = stdin.read()
+    data = get_dependencies(file_in)
+    for package in data:
+        install_package(package)
+
+file_in = stdin.read()
+deps = get_dependencies(file_in)
+for pkg in deps:
+    install_package(pkg)
+"""
+```
+
+* une fois l'environement en place, il faut apporté quelque modification au script principal compute_simmulation :
+* N_CPU <- ifelse(!DEBUG, 100L, 1L) , changer 100L en fonction du nombre de coeur cpu disponible, garder 100L a fait crash ma machine
+* On peut choisir la liste des methodes a executé, le reste de la structure s'adapte a la taille de la liste, ne garder que methods <- c("marginal") permet de ne faire tourner que la marginal ( la liste compléte initiale de toute les methodes a pris plus de 6h a tourner sur ma machine )
+* les données synthétiques son stoquer dans la variale sim_data, pour en avoir le csv rajouter une ligne en fin de scripte :
+    * write.csv(sim_data,"data.csv",row.names=FALSE)
+
+### Fait du 25 au 28
+maintenant qu'on a récupéré les donnée, on peut commencer a coder la methode marginal
+
+```
+### Travaille en cour, pas encore fini !
+import numpy as np
+import sklearn
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+# Read and loads
+df = pd.read_csv('data.csv')
+Y=df["y"]
+X=df.drop("y",axis=1)
+
+#random slpit train/pred
+n = 800 
+train = X.sample(n, axis=0)
+
+indices_in_train = train.index.tolist()
+pred = X[~X.index.isin(indices_in_train)]
+```
+
+### Fait du 28/02 au 03/03
+
+#### Affinage du code pour récupéré les donnée,
+ - la première methode n'as pas respecter la structure de donnée du scripts, et les donnnées étaient éronnée :
+ - Les fonctions de génération contiennent des valeur par défault, ma methode n'aurais pas du fonctionné, les donné que j'ai pu récupéré était alors issu des valeurs du script par défault.
+ - Je n'avais généré qu'une seul simulation, quand le script en génère 100
+ - Ma nouvelle, et plus simple methodes, a était d'injecter une instruction d'écriture juste aprés le chargement des données par le scripts
+ - Cette aproche permet de ne rien modifier aux paramettres de la methode, et m'assure de l'intégriter des donnée récupérée
+ - On a désormais accés au 100 tirage de donnée que traite la methodes pour chaqu'un des rho_group tester (0, 0.2, 0.5, 0.8) a rho intra group constant 0.8
+ - voir le script modifier dans le repo
+
+# Fait du 04/03 au 13/03
+
+#### Ecrire les scriptes de vérification des données récupéré :
+ - Un premier scripts teste la matrices d'auto-correlation de chaque groupes, pour chaque simulation
+ - Le resultat pour chaque rho_group est écris directement dans le dossier associé
+ - Un deuxiem scriptes teste pour chaque groupe, les matrices de corrélation associé à chaqu'un des autres groupes, pour chaque simulation
+ - Le resultat pour chaque rho_group est écris directement dans le dossier associé
+
+#### Hypothese et resultat
+ - Beaucoup de donnée sont comprise comme non conforme au regarde des ces testes.
+ - Ce faisant, je doute fortement de cette conclusion.
+ - les deux scripts base la conformité des donnée sur la correlation moyenne de chaque groupe et sont écart à la valeur attendue :
+     * Je ne pense pas que cette aproche soit adapter
+     * je n'ai pas encore pris le temps de réfléchir a une métrique plus pertinente
+ - Avec ces soucis en tête, j'ai essayer de faire les scripts le plus flexible possible
+ - Je devrais pouvoir accepter tout critère de test, pourvue que les comparaisons soient structurer groupe à groupe
+
+### Fait du 13/03 au 20/03
+#### codé la methode marginale :
+ - Suivant le modèle utilisé dans l'experrience, la methode marginale se donne comme suis :
+     * Faire une régrétion lineaire généralisé sur chaque groupe
+     * L'importance marginale du groupe est la somme des coefficients de régression obtenue pour chaque individu du groupe
+     * Le score est la moyenne par variable du R2 associé a la prédiction de chaque groupe, dans le cas rho_0 où les groupes ne partage pas d'informations, on s'attend a se qu'il soit proche de 0,8/50=0,016
+ - J'ai codé cette methode, voir compute_methode.py
+
+### Fait du 20/03 au 27/03
+#### comparé avec la methode original :
+ - J'ai travailler sur rho_0/1.csv
+ - J'ai travailler sur la fonction utilisé dans l'experience pour vérifier mes resultat, voir marginal.R
+ - Je retrouve des resultats similaire à l'experiences, validant pour le moments mon scripte python:
+marginal.R
+```
+[1] "Applying Marginal Method"
+[1] "y ~ x1+x2+x3+x4+x5"
+[1] 0.2724591
+[1] "y ~ x6+x7+x8+x9+x10"
+[1] 0.5384059
+[1] "y ~ x11+x12+x13+x14+x15"
+[1] 0.5227941
+[1] "y ~ x16+x17+x18+x19+x20"
+[1] 0.5205014
+[1] "y ~ x21+x22+x23+x24+x25"
+[1] 0.8474513
+[1] "y ~ x26+x27+x28+x29+x30"
+[1] 0.8578651
+[1] "y ~ x31+x32+x33+x34+x35"
+[1] 0.8583584
+[1] "y ~ x36+x37+x38+x39+x40"
+[1] 0.8604927
+[1] "y ~ x41+x42+x43+x44+x45"
+[1] 0.8746681
+[1] "y ~ x46+x47+x48+x49+x50"
+[1] 0.841207
+   method  importance      p_value      score
+1    Marg  2.14790420 3.408590e-10 0.01682414
+2    Marg -3.06831076 8.876045e-23 0.01682414
+3    Marg  0.35879303 3.429200e-01 0.01682414
+4    Marg -0.01619905 9.656091e-01 0.01682414
+5    Marg -2.37964331 2.961773e-13 0.01682414
+6    Marg  0.30257080 4.110814e-01 0.01682414
+7    Marg  0.10475535 7.859355e-01 0.01682414
+8    Marg  0.14635398 6.924334e-01 0.01682414
+9    Marg  0.63890036 9.495888e-02 0.01682414
+10   Marg -0.41221654 2.774437e-01 0.01682414
+```
