@@ -137,8 +137,14 @@ pred = X[~X.index.isin(indices_in_train)]
 #### comparé avec la methode original :
  - J'ai travailler sur rho_0/1.csv
  - J'ai travailler sur la fonction utilisé dans l'experience pour vérifier mes resultat, voir marginal.R
- - Je retrouve des resultats similaire à l'experiences, validant pour le moments mon scripte python:
-marginal.R
+ - Je retrouve des resultats similaire à l'experiences, validant pour le moments mon scripte python
+
+ - Reste a refaire la p_value :
+    * https://github.com/SurajGupta/r-source/blob/master/src/library/stats/R/glm.R
+    * https://lbelzile.github.io/lineaRmodels/the-lm-function.html
+
+#### marginal.R sur le teste rho_0/1.csv
+
 ```
 [1] "Applying Marginal Method"
 [1] "y ~ x1+x2+x3+x4+x5"
