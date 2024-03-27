@@ -1,5 +1,5 @@
 "
-THIS IS NOT THIS ORIGINAL SCRIPT, SEE SOURCE MATERIAL 
+THIS IS NOT THE ORIGINAL SCRIPT, SEE SOURCE MATERIAL
 https://github.com/achamma723/Group_Variable_Importance
 "
 
@@ -35,7 +35,7 @@ if (!DEBUG) {
 
 ##### Running Methods #####
 
-####MODIFICATION DE LA LISTE POUR FAIRE TOURNER + VITE
+#### MODIFICATION DE LA LISTE POUR FAIRE TOURNER + VITE
 methods <- c(
   "marginal"
 

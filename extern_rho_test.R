@@ -3,21 +3,20 @@ library(plyr)
 rho=c("rho_0/","rho_0,2/","rho_0,5/","rho_0,8/")
 supposed_rho=c(0,0.2,0.5,0.8)
 
-#fonction critère de test, 
-#vérifi si la moyenne d'une matrice de correlation entre 2 groupe est contenue dans un intervalle 
-#autour de la valeur attendue
+# Fonction critère de test, vérifie si la moyenne d'une matrice de correlation
+# entre 2 groupe est contenue dans un intervalle autour de la valeur attendue
 
 extern <- function(n=matrix(),supposed_mean=0)
 {
   res = TRUE
-  if ((mean(n) > supposed_mean+0.04) || (mean(n) < supposed_mean-0.04)) 
+  if ((mean(n) > supposed_mean + 0.04) || (mean(n) < supposed_mean - 0.04))
   {
     res= FALSE
   }
   returnValue(res)
 }
 
-#pour chaque rho,on parcour les 100 simulations
+# Pour chaque rho,on parcourt les 100 simulations
 
 for (rho_index in 1:length(rho))
   { rhotype=rho[rho_index]
@@ -26,7 +25,7 @@ for (rho_index in 1:length(rho))
     print(rhovalue)
     result=data.frame()
     for (i in 1:100)
-    { #pour chaque simulation, on génère Blocks la liste des 10 groupes associés
+    { # Pour chaque simulation, on génère Blocks la liste des 10 groupes associés
       extern_rho_is_valid = data.frame()
       Data <- read.csv(file=paste(rhotype,as.character(i),".csv",sep=""),stringsAsFactors=TRUE)
       Variables=Data[-1]
@@ -40,10 +39,10 @@ for (rho_index in 1:length(rho))
                   b8=Variables[36:40],
                   b9=Variables[41:45],
                   b10=Variables[46:50])
-      
+
       for (group in 1:length(Blocks))
-        { 
-        #pour chaqu'un de ces groupes, on génère la liste des matrices de correlation avec chaqu'un des autres groupes
+        {
+        # Pour chaqu'un de ces groupes, on génère la liste des matrices de correlation avec chaqu'un des autres groupes
         extern_rho_for_group = lapply(Blocks[-group], cor, Blocks[[group]])
         #On teste chaque matrice de cette liste avec la fonction criter de test
         extern_rho_is_valid_for_group = lapply(extern_rho_for_group, extern, rhovalue)
@@ -52,7 +51,7 @@ for (rho_index in 1:length(rho))
         }
       result=rbind(result,as.vector(extern_rho_is_valid))
     }
-    result<-result[,c(10,1,2,3,4,5,6,7,8,9)] #b1 au début + joli
+    result<-result[,c(10,1,2,3,4,5,6,7,8,9)] # b1 au début + joli
     write.table(result,file=paste(rhotype,"extern_rho_test","csv",sep='.'),row.names=FALSE,sep = ",")
   }
 
