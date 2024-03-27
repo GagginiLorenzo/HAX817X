@@ -22,11 +22,11 @@ A faire du 13/02 au 28/02
 * Setup un environement propre :
      - Ne souhaitant pas installé conda sur ma machine, je run un Docker ubuntu avec conda deja setup: https://hub.docker.com/r/condaforge/mambaforge
      - une fois le docker en place, j'y installe les utilitaire necessaire et je clone le repo :
-        * apt update
-        * apt upgrade
-        * apt install fish #plus pratique que bash
-        * fish
-        * mamba init fish
+        * `apt update`
+        * `apt upgrade`
+        * `apt install fish #plus pratique que bash`
+        * `fish`
+        * `mamba init fish`
         * apt install software-properties-common
         * add-apt-repository ppa:maveonair/helix-editor
         * sudo apt update
@@ -37,8 +37,7 @@ A faire du 13/02 au 28/02
     - Une première difficulter technique significative se présente : le yaml est structuré de façon un peut spécifique, en imposant que certain paquet soit exclusivement installer via pip.
     -  Je ne sais pas s'il sagit d'une erreur de configuration, ou une mauvaise manipulation de ma part, mais cette particularité casse l'installation puisque certain de ces paquets ne sont plus a jour sur pip, il faudrait les installer directement via les chanel conda, mais n'ayant pas trouver de bonne syntax yaml pour ce cas spécifique, j'ai fait un script d'installation :
 
-```
-"""
+```python
 from sys import stdin
 from os import system
 from yaml import load, CLoader
@@ -65,7 +64,6 @@ file_in = stdin.read()
 deps = get_dependencies(file_in)
 for pkg in deps:
     install_package(pkg)
-"""
 ```
 
 * une fois l'environement en place, il faut apporté quelque modification au script principal compute_simmulation :
